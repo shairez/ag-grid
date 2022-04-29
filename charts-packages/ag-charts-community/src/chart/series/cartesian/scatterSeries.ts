@@ -79,7 +79,6 @@ export class ScatterSeries extends CartesianSeries {
     set fill(value: string | undefined) {
         if (this._fill !== value) {
             this._fill = value;
-            this.scheduleUpdate();
         }
     }
     get fill(): string | undefined {
@@ -93,7 +92,6 @@ export class ScatterSeries extends CartesianSeries {
     set stroke(value: string | undefined) {
         if (this._stroke !== value) {
             this._stroke = value;
-            this.scheduleUpdate();
         }
     }
 
@@ -108,7 +106,6 @@ export class ScatterSeries extends CartesianSeries {
     set strokeWidth(value: number) {
         if (this._strokeWidth !== value) {
             this._strokeWidth = value;
-            this.scheduleUpdate();
         }
     }
     get strokeWidth(): number {
@@ -122,7 +119,6 @@ export class ScatterSeries extends CartesianSeries {
     set fillOpacity(value: number) {
         if (this._fillOpacity !== value) {
             this._fillOpacity = value;
-            this.scheduleUpdate();
         }
     }
     get fillOpacity(): number {
@@ -136,7 +132,6 @@ export class ScatterSeries extends CartesianSeries {
     set strokeOpacity(value: number) {
         if (this._strokeOpacity !== value) {
             this._strokeOpacity = value;
-            this.scheduleUpdate();
         }
     }
     get strokeOpacity(): number {
@@ -261,7 +256,7 @@ export class ScatterSeries extends CartesianSeries {
     createNodeData(): ScatterNodeDatum[] {
         const { chart, data, visible, xAxis, yAxis } = this;
 
-        if (!(chart && data && visible && xAxis && yAxis) || chart.layoutPending || chart.dataPending) {
+        if (!(chart && data && visible && xAxis && yAxis)) {
             return [];
         }
 
@@ -303,18 +298,11 @@ export class ScatterSeries extends CartesianSeries {
     }
 
     update(): void {
-        this.updatePending = false;
-
         this.updateSelections();
         this.updateNodes();
     }
 
     private updateSelections() {
-        if (!this.nodeDataPending) {
-            return;
-        }
-        this.nodeDataPending = false;
-
         this.createNodeData();
         this.updateMarkerSelection();
         this.updateLabelSelection();

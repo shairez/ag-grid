@@ -23,7 +23,7 @@ export class Text extends Shape {
     set x(value: number) {
         if (this._x !== value) {
             this._x = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get x(): number {
@@ -34,7 +34,7 @@ export class Text extends Shape {
     set y(value: number) {
         if (this._y !== value) {
             this._y = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get y(): number {
@@ -55,7 +55,7 @@ export class Text extends Shape {
         if (this._text !== str) {
             this._text = str;
             this.splitText();
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get text(): string {
@@ -77,7 +77,7 @@ export class Text extends Shape {
         if (this._dirtyFont !== value) {
             this._dirtyFont = value;
             if (value) {
-                this.dirty = true;
+                this.markDirty();
             }
         }
     }
@@ -136,7 +136,7 @@ export class Text extends Shape {
     set textAlign(value: CanvasTextAlign) {
         if (this._textAlign !== value) {
             this._textAlign = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get textAlign(): CanvasTextAlign {
@@ -147,7 +147,7 @@ export class Text extends Shape {
     set textBaseline(value: CanvasTextBaseline) {
         if (this._textBaseline !== value) {
             this._textBaseline = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get textBaseline(): CanvasTextBaseline {
@@ -166,7 +166,7 @@ export class Text extends Shape {
         // - textBaseline kind of loses its meaning for multi-line text
         if (this._lineHeight !== value) {
             this._lineHeight = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get lineHeight(): number {
@@ -241,9 +241,7 @@ export class Text extends Shape {
             return;
         }
 
-        if (this.dirtyTransform) {
-            this.computeTransformMatrix();
-        }
+        this.computeTransformMatrix();
         // this.matrix.transformBBox(this.computeBBox!()).render(ctx); // debug
         this.matrix.toContext(ctx);
 
@@ -304,8 +302,6 @@ export class Text extends Shape {
 
             ctx.strokeText(text, x, y);
         }
-
-        this.dirty = false;
     }
 }
 

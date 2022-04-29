@@ -141,7 +141,6 @@ export class PieSeries extends PolarSeries {
             }
 
             this._title = value;
-            this.scheduleUpdate();
         }
     }
     get title(): PieTitle | undefined {
@@ -155,11 +154,6 @@ export class PieSeries extends PolarSeries {
 
     constructor() {
         super();
-
-        this.addEventListener('update', this.scheduleUpdate, this);
-        this.label.addEventListener('change', this.scheduleUpdate, this);
-        this.label.addEventListener('dataChange', this.scheduleData, this);
-        this.callout.addEventListener('change', this.scheduleLayout, this);
 
         this.addPropertyListener('data', event => {
             if (event.value) {
@@ -198,7 +192,6 @@ export class PieSeries extends PolarSeries {
     ];
     set fills(values: string[]) {
         this._fills = values;
-        this.scheduleUpdate();
     }
     get fills(): string[] {
         return this._fills;
@@ -214,7 +207,6 @@ export class PieSeries extends PolarSeries {
     ];
     set strokes(values: string[]) {
         this._strokes = values;
-        this.scheduleUpdate();
     }
     get strokes(): string[] {
         return this._strokes;
@@ -362,8 +354,6 @@ export class PieSeries extends PolarSeries {
     }
 
     update(): void {
-        this.updatePending = false;
-
         const { radius, innerRadiusOffset, outerRadiusOffset, title } = this;
 
         this.radiusScale.range = [
@@ -390,11 +380,6 @@ export class PieSeries extends PolarSeries {
     }
 
     private updateSelections() {
-        if (!this.nodeDataPending) {
-            return;
-        }
-        this.nodeDataPending = false;
-
         this.updateGroupSelection();
     }
 
@@ -632,6 +617,5 @@ export class PieSeries extends PolarSeries {
 
     toggleSeriesItem(itemId: number, enabled: boolean): void {
         this.seriesItemEnabled[itemId] = enabled;
-        this.scheduleData();
     }
 }

@@ -13,7 +13,7 @@ export class Group extends Node {
         value = Math.min(1, Math.max(0, value));
         if (this._opacity !== value) {
             this._opacity = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get opacity(): number {
@@ -31,9 +31,7 @@ export class Group extends Node {
         let top = Infinity;
         let bottom = -Infinity;
 
-        if (this.dirtyTransform) {
-            this.computeTransformMatrix();
-        }
+        this.computeTransformMatrix();
 
         this.children.forEach(child => {
             if (!child.visible) {
@@ -45,9 +43,7 @@ export class Group extends Node {
             }
 
             if (!(child instanceof Group)) {
-                if (child.dirtyTransform) {
-                    child.computeTransformMatrix();
-                }
+                child.computeTransformMatrix();
                 const matrix = Matrix.flyweight(child.matrix);
                 let parent = child.parent;
                 while (parent) {
@@ -86,9 +82,7 @@ export class Group extends Node {
         // A group can have `scaling`, `rotation`, `translation` properties
         // that are applied to the canvas context before children are rendered,
         // so all children can be transformed at once.
-        if (this.dirtyTransform) {
-            this.computeTransformMatrix();
-        }
+        this.computeTransformMatrix();
         this.matrix.toContext(ctx);
 
         const children = this.children;

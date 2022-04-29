@@ -23,7 +23,7 @@ export class Path extends Shape {
         if (this._dirtyPath !== value) {
             this._dirtyPath = value;
             if (value) {
-                this.dirty = true;
+                this.markDirty();
             }
         }
     }
@@ -40,7 +40,7 @@ export class Path extends Shape {
         if (this._svgPath !== value) {
             this._svgPath = value;
             this.path.setFromString(value);
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get svgPath(): string {
@@ -59,9 +59,7 @@ export class Path extends Shape {
     protected updatePath() {}
 
     render(ctx: CanvasRenderingContext2D): void {
-        if (this.dirtyTransform) {
-            this.computeTransformMatrix();
-        }
+        this.computeTransformMatrix();
         // if (scene.debug.renderBoundingBoxes) {
         //     const bbox = this.computeBBox();
         //     if (bbox) {
@@ -77,7 +75,5 @@ export class Path extends Shape {
         this.path.draw(ctx);
 
         this.fillStroke(ctx);
-
-        this.dirty = false;
     }
 }

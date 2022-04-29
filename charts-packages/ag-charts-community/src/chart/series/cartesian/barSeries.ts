@@ -211,7 +211,6 @@ export class BarSeries extends CartesianSeries {
         if (this._xKey !== value) {
             this._xKey = value;
             this.xData = [];
-            this.scheduleData();
         }
     }
     get xKey(): string {
@@ -222,7 +221,6 @@ export class BarSeries extends CartesianSeries {
     set xName(value: string) {
         if (this._xName !== value) {
             this._xName = value;
-            this.scheduleUpdate();
         }
     }
     get xName(): string {
@@ -276,8 +274,6 @@ export class BarSeries extends CartesianSeries {
             groupScale.domain = visibleStacks;
             groupScale.padding = 0.1;
             groupScale.round = true;
-
-            this.scheduleData();
         }
     }
     get yKeys(): string[][] {
@@ -311,7 +307,6 @@ export class BarSeries extends CartesianSeries {
             values = map;
         }
         this._yNames = values;
-        this.scheduleData();
     }
     get yNames(): { [key in string]: string } {
         return this._yNames;
@@ -333,7 +328,6 @@ export class BarSeries extends CartesianSeries {
 
         if (this._normalizedTo !== absValue) {
             this._normalizedTo = absValue;
-            this.scheduleData();
         }
     }
     get normalizedTo(): number | undefined {
@@ -344,7 +338,6 @@ export class BarSeries extends CartesianSeries {
     set strokeWidth(value: number) {
         if (this._strokeWidth !== value) {
             this._strokeWidth = value;
-            this.scheduleUpdate();
         }
     }
     get strokeWidth(): number {
@@ -355,7 +348,6 @@ export class BarSeries extends CartesianSeries {
     set shadow(value: DropShadow | undefined) {
         if (this._shadow !== value) {
             this._shadow = value;
-            this.scheduleUpdate();
         }
     }
     get shadow(): DropShadow | undefined {
@@ -492,7 +484,7 @@ export class BarSeries extends CartesianSeries {
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
-        if (!(chart && data && visible && xAxis && yAxis) || chart.layoutPending || chart.dataPending) {
+        if (!(chart && data && visible && xAxis && yAxis)) {
             return [];
         }
 
@@ -636,18 +628,11 @@ export class BarSeries extends CartesianSeries {
     }
 
     update(): void {
-        this.updatePending = false;
-
         this.updateSelections();
         this.updateNodes();
     }
 
     private updateSelections() {
-        if (!this.nodeDataPending) {
-            return;
-        }
-        this.nodeDataPending = false;
-
         this.createNodeData();
         this.updateRectSelection();
         this.updateLabelSelection();
@@ -920,7 +905,5 @@ export class BarSeries extends CartesianSeries {
             }
         });
         this.groupScale.domain = visibleStacks;
-
-        this.scheduleData();
     }
 }

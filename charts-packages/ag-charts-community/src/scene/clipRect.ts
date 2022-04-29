@@ -25,7 +25,7 @@ export class ClipRect extends Node {
     set enabled(value: boolean) {
         if (this._enabled !== value) {
             this._enabled = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get enabled(): boolean {
@@ -37,7 +37,7 @@ export class ClipRect extends Node {
         if (this._dirtyPath !== value) {
             this._dirtyPath = value;
             if (value) {
-                this.dirty = true;
+                this.markDirty();
             }
         }
     }

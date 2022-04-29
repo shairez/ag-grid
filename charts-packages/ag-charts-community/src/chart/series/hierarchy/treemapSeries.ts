@@ -127,7 +127,6 @@ export class TreemapSeries extends HierarchySeries {
         if (this._nodePadding !== value) {
             this._nodePadding = value;
             this.updateLayoutPadding();
-            this.scheduleUpdate();
         }
     }
     get nodePadding(): number {
@@ -153,10 +152,7 @@ export class TreemapSeries extends HierarchySeries {
         return shadow;
     })();
     set shadow(value: DropShadow) {
-        if (this._shadow !== value) {
-            this._shadow = value;
-            this.scheduleUpdate();
-        }
+        this._shadow = value;
     }
     get shadow(): DropShadow {
         return this._shadow;
@@ -244,18 +240,11 @@ export class TreemapSeries extends HierarchySeries {
     }
 
     update(): void {
-        this.updatePending = false;
-
         this.updateSelections();
         this.updateNodes();
     }
 
     updateSelections() {
-        if (!this.nodeDataPending) {
-            return;
-        }
-        this.nodeDataPending = false;
-
         const { chart, dataRoot } = this;
 
         if (!chart || !dataRoot) {

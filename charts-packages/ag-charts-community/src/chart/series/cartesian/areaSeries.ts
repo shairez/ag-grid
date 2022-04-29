@@ -179,7 +179,6 @@ export class AreaSeries extends CartesianSeries {
         if (this._xKey !== value) {
             this._xKey = value;
             this.xData = [];
-            this.scheduleData();
         }
     }
 
@@ -198,8 +197,6 @@ export class AreaSeries extends CartesianSeries {
             const { seriesItemEnabled } = this;
             seriesItemEnabled.clear();
             values.forEach(key => seriesItemEnabled.set(key, true));
-
-            this.scheduleData();
         }
     }
 
@@ -220,7 +217,6 @@ export class AreaSeries extends CartesianSeries {
 
         if (this._normalizedTo !== absValue) {
             this._normalizedTo = absValue;
-            this.scheduleData();
         }
     }
 
@@ -395,20 +391,12 @@ export class AreaSeries extends CartesianSeries {
     }
 
     update(): void {
-        this.updatePending = false;
-
         this.updateSelections();
         this.updateNodes();
     }
 
     updateSelections() {
-        if (!this.nodeDataPending) {
-            return;
-        }
-        this.nodeDataPending = false;
-
         this.createSelectionData();
-
         this.updateFillSelection();
         this.updateStrokeSelection();
         this.updateMarkerSelection();
@@ -939,6 +927,5 @@ export class AreaSeries extends CartesianSeries {
 
     toggleSeriesItem(itemId: string, enabled: boolean): void {
         this.seriesItemEnabled.set(itemId, enabled);
-        this.scheduleData();
     }
 }

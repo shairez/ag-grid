@@ -143,7 +143,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
             node._setScene(this.scene);
         }
 
-        this.dirty = true;
+        this.markDirty();
     }
 
     appendChild<T extends Node>(node: T): T {
@@ -164,7 +164,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
         node._setParent(this);
         node._setScene(this.scene);
 
-        this.dirty = true;
+        this.markDirty();
 
         return node;
     }
@@ -178,7 +178,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
                 delete this.childSet[node.id];
                 node._setParent();
                 node._setScene();
-                this.dirty = true;
+                this.markDirty();
 
                 return node;
             }
@@ -214,7 +214,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
                     + `but is not in its list of children.`);
             }
 
-            this.dirty = true;
+            this.markDirty();
         } else {
             this.append(node);
         }
@@ -265,21 +265,16 @@ export abstract class Node { // Don't confuse with `window.Node`.
     }
 
     private _dirtyTransform = false;
-    set dirtyTransform(value: boolean) {
-        this._dirtyTransform = value;
-        if (value) {
-            this.dirty = true;
-        }
-    }
-    get dirtyTransform(): boolean {
-        return this._dirtyTransform;
+    markDirtyTransform() {
+        this._dirtyTransform = true;
+        this.markDirty();
     }
 
     private _scalingX: number = 1;
     set scalingX(value: number) {
         if (this._scalingX !== value) {
             this._scalingX = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get scalingX(): number {
@@ -290,7 +285,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set scalingY(value: number) {
         if (this._scalingY !== value) {
             this._scalingY = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get scalingY(): number {
@@ -307,7 +302,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set scalingCenterX(value: number | null) {
         if (this._scalingCenterX !== value) {
             this._scalingCenterX = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get scalingCenterX(): number | null {
@@ -318,7 +313,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set scalingCenterY(value: number | null) {
         if (this._scalingCenterY !== value) {
             this._scalingCenterY = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get scalingCenterY(): number | null {
@@ -329,7 +324,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set rotationCenterX(value: number | null) {
         if (this._rotationCenterX !== value) {
             this._rotationCenterX = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get rotationCenterX(): number | null {
@@ -340,7 +335,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set rotationCenterY(value: number | null) {
         if (this._rotationCenterY !== value) {
             this._rotationCenterY = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get rotationCenterY(): number | null {
@@ -356,7 +351,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set rotation(value: number) {
         if (this._rotation !== value) {
             this._rotation = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get rotation(): number {
@@ -386,7 +381,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set translationX(value: number) {
         if (this._translationX !== value) {
             this._translationX = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get translationX(): number {
@@ -397,7 +392,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
     set translationY(value: number) {
         if (this._translationY !== value) {
             this._translationY = value;
-            this.dirtyTransform = true;
+            this.markDirtyTransform();
         }
     }
     get translationY(): number {
@@ -451,6 +446,10 @@ export abstract class Node { // Don't confuse with `window.Node`.
     }
 
     computeTransformMatrix() {
+        if (!this._dirtyTransform) {
+            return;
+        }
+        
         // TODO: transforms without center of scaling and rotation correspond directly
         //       to `setAttribute('transform', 'translate(tx, ty) rotate(rDeg) scale(sx, sy)')`
         //       in SVG. Our use cases will mostly require positioning elements (rects, circles)
@@ -508,7 +507,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
         const tx4 = scx * (1 - sx) - rcx;
         const ty4 = scy * (1 - sy) - rcy;
 
-        this.dirtyTransform = false;
+        this._dirtyTransform = false;
 
         this.matrix.setElements([
             cos * sx, sin * sx,
@@ -520,42 +519,19 @@ export abstract class Node { // Don't confuse with `window.Node`.
 
     abstract render(ctx: CanvasRenderingContext2D): void;
 
-    /**
-     * Each time a property of the node that effects how it renders changes
-     * the `dirty` property of the node should be set to `true`. The change
-     * to the `dirty` property of the node will propagate up to its parents
-     * and eventually to the scene, at which point an animation frame callback
-     * will be scheduled to rerender the scene and its nodes and reset the `dirty`
-     * flags of all nodes and the {@link Scene._dirty | Scene} back to `false`.
-     * Since changes to node properties are not rendered immediately, it's possible
-     * to change as many properties on as many nodes as needed and the rendering
-     * will still only happen once in the next animation frame callback.
-     * The animation frame callback is only scheduled if it hasn't been already.
-     */
-    private _dirty = true;
-    set dirty(value: boolean) {
-        // TODO: check if we are already dirty (e.g. if (this._dirty !== value))
-        //       if we are, then all parents and the scene have been
-        //       notified already, and we are doing redundant work
-        //       (but test if this is indeed the case)
-        this._dirty = value;
-        if (value) {
-            if (this.parent) {
-                this.parent.dirty = true;
-            } else if (this.scene) {
-                this.scene.dirty = true;
-            }
+    markDirty() {
+        if (this.parent) {
+            this.parent.markDirty();
+        } else if (this.scene) {
+            this.scene.markDirty();
         }
-    }
-    get dirty(): boolean {
-        return this._dirty;
     }
 
     private _visible: boolean = true;
     set visible(value: boolean) {
         if (this._visible !== value) {
             this._visible = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get visible(): boolean {
@@ -571,7 +547,7 @@ export abstract class Node { // Don't confuse with `window.Node`.
             if (this.parent) {
                 this.parent.dirtyZIndex = true;
             }
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get zIndex(): number {

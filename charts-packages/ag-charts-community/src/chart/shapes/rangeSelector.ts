@@ -115,9 +115,7 @@ export class RangeSelector extends Group {
     }
 
     render(ctx: CanvasRenderingContext2D) {
-        if (this.dirtyTransform) {
-            this.computeTransformMatrix();
-        }
+        this.computeTransformMatrix();
         this.matrix.toContext(ctx);
 
         const { mask, minHandle, maxHandle } = this;

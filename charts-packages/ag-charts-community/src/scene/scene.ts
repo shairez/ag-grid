@@ -58,21 +58,13 @@ export class Scene {
         }
 
         this.pendingSize = [width, height];
-        this.dirty = true;
+        this.markDirty();
     }
 
     private _dirty = false;
     private animationFrameId = 0;
-    set dirty(dirty: boolean) {
-        if (dirty) {
-            if (!this._dirty) {
-                this.animationFrameId = requestAnimationFrame(this.render);
-            }
-        } else if (this.animationFrameId) {
-            cancelAnimationFrame(this.animationFrameId);
-            this.animationFrameId = 0;
-        }
-        this._dirty = dirty;
+    markDirty() {
+        this._dirty = true;
     }
     get dirty(): boolean {
         return this._dirty;
@@ -98,7 +90,7 @@ export class Scene {
             node._setScene(this);
         }
 
-        this.dirty = true;
+        this.markDirty();
     }
     get root(): Node | null {
         return this._root;
@@ -125,7 +117,7 @@ export class Scene {
         }
 
         if (root && !root.visible) {
-            this.dirty = false;
+            this._dirty = false;
             return;
         }
 
@@ -149,6 +141,6 @@ export class Scene {
             ctx.fillText(this.frameIndex.toString(), 2, 10);
         }
 
-        this.dirty = false;
+        this._dirty = false;
     }
 }

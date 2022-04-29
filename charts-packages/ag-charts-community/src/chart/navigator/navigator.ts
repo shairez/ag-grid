@@ -24,7 +24,6 @@ export class Navigator {
 
     set enabled(value: boolean) {
         this.rs.visible = value;
-        this.chart.layoutPending = true;
     }
     get enabled(): boolean {
         return this.rs.visible;
@@ -53,7 +52,6 @@ export class Navigator {
 
     set height(value: number) {
         this.rs.height = value;
-        this.chart.layoutPending = true;
     }
     get height(): number {
         return this.rs.height;
@@ -62,7 +60,6 @@ export class Navigator {
     private _margin = 10;
     set margin(value: number) {
         this._margin = value;
-        this.chart.layoutPending = true;
     }
     get margin(): number {
         return this._margin;
@@ -102,7 +99,6 @@ export class Navigator {
             }
         });
         chart.seriesRoot.enabled = clipSeries;
-        chart.series.forEach(s => s.nodeDataPending = true);
     }
 
     onDragStart(offset: Offset) {

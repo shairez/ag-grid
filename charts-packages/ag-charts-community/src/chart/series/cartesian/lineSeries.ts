@@ -125,7 +125,6 @@ export class LineSeries extends CartesianSeries {
         if (this._xKey !== value) {
             this._xKey = value;
             this.xData = [];
-            this.scheduleData();
         }
     }
     get xKey(): string {
@@ -139,7 +138,6 @@ export class LineSeries extends CartesianSeries {
         if (this._yKey !== value) {
             this._yKey = value;
             this.yData = [];
-            this.scheduleData();
         }
     }
     get yKey(): string {
@@ -201,18 +199,11 @@ export class LineSeries extends CartesianSeries {
     }
 
     update(): void {
-        this.updatePending = false;
-
         this.updateSelections();
         this.updateNodes();
     }
 
     private updateSelections() {
-        if (!this.nodeDataPending) {
-            return;
-        }
-        this.nodeDataPending = false;
-
         this.updateLinePath(); // this will create node data too
         this.updateNodeSelection();
     }

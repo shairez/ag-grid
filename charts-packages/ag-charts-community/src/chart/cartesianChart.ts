@@ -34,10 +34,6 @@ export class CartesianChart extends Chart {
     readonly navigator = new Navigator(this);
 
     performLayout(): void {
-        if (this.dataPending) {
-            return;
-        }
-
         this.scene.root!!.visible = true;
 
         const { width, height, axes, legend, navigator } = this;

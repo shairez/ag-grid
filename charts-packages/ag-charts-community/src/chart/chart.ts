@@ -411,10 +411,7 @@ export abstract class Chart extends Observable {
         scene.root = root;
         scene.container = element;
 
-        this.padding.addEventListener('layoutChange', this.scheduleLayout, this);
-
         const { legend } = this;
-        legend.addEventListener('layoutChange', this.scheduleLayout, this);
         legend.item.label.addPropertyListener('formatter', this.updateLegend, this);
         legend.addPropertyListener('position', this.onLegendPositionChange, this);
 
@@ -433,7 +430,6 @@ export abstract class Chart extends Observable {
 
         this.addPropertyListener('title', this.onCaptionChange);
         this.addPropertyListener('subtitle', this.onCaptionChange);
-        this.addEventListener('layoutChange', this.scheduleLayout);
     }
 
     destroy() {
@@ -447,18 +443,15 @@ export abstract class Chart extends Observable {
 
     private onLegendPositionChange() {
         this.legendAutoPadding.clear();
-        this.layoutPending = true;
     }
 
     private onCaptionChange(event: PropertyChangeEvent<this, Caption | undefined>) {
         const { value, oldValue } = event;
 
         if (oldValue) {
-            oldValue.removeEventListener('change', this.scheduleLayout, this);
             this.scene.root!.removeChild(oldValue.node);
         }
         if (value) {
-            value.addEventListener('change', this.scheduleLayout, this);
             this.scene.root!.appendChild(value.node);
         }
     }
@@ -476,7 +469,6 @@ export abstract class Chart extends Observable {
         // make linked axes go after the regular ones (simulates stable sort by `linkedTo` property)
         this._axes = values.filter(a => !a.linkedTo).concat(values.filter(a => a.linkedTo));
         this._axes.forEach(axis => this.attachAxis(axis));
-        this.axesChanged = true;
     }
     get axes(): ChartAxis[] {
         return this._axes;
@@ -499,17 +491,6 @@ export abstract class Chart extends Observable {
         return this._series;
     }
 
-    protected scheduleLayout() {
-        this.layoutPending = true;
-    }
-
-    private scheduleData() {
-        // To prevent the chart from thinking the cursor is over the same node
-        // after a change to data (the nodes are reused on data changes).
-        this.dehighlightDatum();
-        this.dataPending = true;
-    }
-
     addSeries(series: Series, before?: Series): boolean {
         const { series: allSeries, seriesRoot } = this;
         const canAdd = allSeries.indexOf(series) < 0;
@@ -525,8 +506,6 @@ export abstract class Chart extends Observable {
                 seriesRoot.append(series.group);
             }
             this.initSeries(series);
-            this.seriesChanged = true;
-            this.axesChanged = true;
 
             return true;
         }
@@ -539,16 +518,11 @@ export abstract class Chart extends Observable {
         if (!series.data) {
             series.data = this.data;
         }
-        series.addEventListener('layoutChange', this.scheduleLayout, this);
-        series.addEventListener('dataChange', this.scheduleData, this);
-        series.addEventListener('legendChange', this.updateLegend, this);
         series.addEventListener('nodeClick', this.onSeriesNodeClick, this);
     }
 
     protected freeSeries(series: Series) {
         series.chart = undefined;
-        series.removeEventListener('layoutChange', this.scheduleLayout, this);
-        series.removeEventListener('dataChange', this.scheduleData, this);
         series.removeEventListener('legendChange', this.updateLegend, this);
         series.removeEventListener('nodeClick', this.onSeriesNodeClick, this);
     }
@@ -579,9 +553,6 @@ export abstract class Chart extends Observable {
 
                 allSeries.unshift(series);
             }
-
-            this.seriesChanged = true;
-            this.axesChanged = true;
         }
 
         return false;
@@ -594,7 +565,6 @@ export abstract class Chart extends Observable {
             this.series.splice(index, 1);
             this.freeSeries(series);
             this.seriesRoot.removeChild(series.group);
-            this.seriesChanged = true;
             return true;
         }
 
@@ -607,7 +577,6 @@ export abstract class Chart extends Observable {
             this.seriesRoot.removeChild(series.group);
         });
         this._series = []; // using `_series` instead of `series` to prevent infinite recursion
-        this.seriesChanged = true;
     }
 
     protected assignSeriesToAxes() {
@@ -623,8 +592,6 @@ export abstract class Chart extends Observable {
 
             axis.boundSeries = boundSeries;
         });
-
-        this.seriesChanged = false;
     }
 
     protected assignAxesToSeries(force: boolean = false) {
@@ -651,8 +618,6 @@ export abstract class Chart extends Observable {
                 }
             });
         });
-
-        this.axesChanged = false;
     }
 
     private findMatchingAxis(directionAxes: ChartAxis[], directionKeys?: string[]): ChartAxis | undefined {
@@ -672,92 +637,14 @@ export abstract class Chart extends Observable {
         }
     }
 
-    protected _axesChanged = false;
-    protected set axesChanged(value: boolean) {
-        this._axesChanged = value;
-    }
-    protected get axesChanged(): boolean {
-        return this._axesChanged;
-    }
-
-    protected _seriesChanged = false;
-    protected set seriesChanged(value: boolean) {
-        this._seriesChanged = value;
-        if (value) {
-            this.dataPending = true;
-        }
-    }
-    protected get seriesChanged(): boolean {
-        return this._seriesChanged;
-    }
-
-    protected layoutCallbackId: number = 0;
-    set layoutPending(value: boolean) {
-        if (value) {
-            if (!(this.layoutCallbackId || this.dataPending)) {
-                this.layoutCallbackId = requestAnimationFrame(this._performLayout);
-                this.series.forEach(s => s.nodeDataPending = true);
-            }
-        } else if (this.layoutCallbackId) {
-            cancelAnimationFrame(this.layoutCallbackId);
-            this.layoutCallbackId = 0;
-        }
-    }
-    /**
-     * Only `true` while we are waiting for the layout to start.
-     * This will be `false` if the layout has already started and is ongoing.
-     */
-    get layoutPending(): boolean {
-        return !!this.layoutCallbackId;
-    }
-
-    private readonly _performLayout = () => {
-        this.layoutCallbackId = 0;
-
-        this.background.width = this.width;
-        this.background.height = this.height;
-
-        this.performLayout();
-
-        if (!this.layoutPending) {
-            this.fireEvent({ type: 'layoutDone' });
-        }
-    }
-
-    private dataCallbackId: number = 0;
-    set dataPending(value: boolean) {
-        if (this.dataCallbackId) {
-            clearTimeout(this.dataCallbackId);
-            this.dataCallbackId = 0;
-        }
-        if (value) {
-            this.dataCallbackId = window.setTimeout(() => {
-                this.dataPending = false;
-                this.processData();
-            }, 0);
-        }
-    }
-    get dataPending(): boolean {
-        return !!this.dataCallbackId;
-    }
-
     processData(): void {
-        this.layoutPending = false;
-
-        if (this.axesChanged) {
-            this.assignAxesToSeries(true);
-            this.assignSeriesToAxes();
-        }
-
-        if (this.seriesChanged) {
-            this.assignSeriesToAxes();
-        }
+        this.assignAxesToSeries(true);
+        this.assignSeriesToAxes();
+        this.assignSeriesToAxes();
 
         this.series.forEach(s => s.processData());
 
-        this.updateLegend(); // sets legend data which schedules a layout
-
-        this.layoutPending = true;
+        this.updateLegend();
     }
 
     private nodeData: Map<Series, readonly SeriesNodeDatum[]> = new Map();
@@ -804,27 +691,9 @@ export abstract class Chart extends Observable {
 
     abstract performLayout(): void;
 
-    private updateCallbackId: number = 0;
-    set updatePending(value: boolean) {
-        if (this.updateCallbackId) {
-            clearTimeout(this.updateCallbackId);
-            this.updateCallbackId = 0;
-        }
-        if (value && !this.layoutPending) {
-            this.updateCallbackId = window.setTimeout(() => {
-                this.update();
-            }, 0);
-        }
-    }
-    get updatePending(): boolean {
-        return !!this.updateCallbackId;
-    }
-
     update() {
-        this.updatePending = false;
         this.series.forEach(series => {
-            if (series.updatePending) {
-                series.update();
+            series.update();
             }
         });
     }
@@ -1246,14 +1115,6 @@ export abstract class Chart extends Observable {
                 }
             }
         }
-
-        // Careful to only schedule updates when necessary.
-        if ((this.highlightedDatum && !oldHighlightedDatum) ||
-            (this.highlightedDatum && oldHighlightedDatum &&
-                (this.highlightedDatum.series !== oldHighlightedDatum.series ||
-                    this.highlightedDatum.itemId !== oldHighlightedDatum.itemId))) {
-            this.series.forEach(s => s.updatePending = true);
-        }
     }
 
     private onSeriesDatumPick(meta: TooltipMeta, datum: SeriesNodeDatum, node?: Shape, event?: MouseEvent) {
@@ -1283,13 +1144,11 @@ export abstract class Chart extends Observable {
     highlightDatum(datum: SeriesNodeDatum): void {
         this.scene.canvas.element.style.cursor = datum.series.cursor;
         this.highlightedDatum = datum;
-        this.series.forEach(s => s.updatePending = true);
     }
 
     dehighlightDatum(): void {
         if (this.highlightedDatum) {
             this.highlightedDatum = undefined;
-            this.series.forEach(s => s.updatePending = true);
         }
     }
 }

@@ -184,7 +184,6 @@ export class HistogramSeries extends CartesianSeries {
     set xKey(value: string) {
         if (this._xKey !== value) {
             this._xKey = value;
-            this.scheduleData();
         }
     }
 
@@ -195,8 +194,6 @@ export class HistogramSeries extends CartesianSeries {
     private _areaPlot: boolean = false;
     set areaPlot(c: boolean) {
         this._areaPlot = c;
-
-        this.scheduleData();
     }
 
     get areaPlot(): boolean {
@@ -206,8 +203,6 @@ export class HistogramSeries extends CartesianSeries {
     private _bins: [number, number][] | undefined = undefined;
     set bins(bins: [number, number][] | undefined) {
         this._bins = bins;
-
-        this.scheduleData();
     }
 
     get bins(): [number, number][] | undefined {
@@ -217,8 +212,6 @@ export class HistogramSeries extends CartesianSeries {
     private _aggregation: HistogramAggregation = 'count';
     set aggregation(aggregation: HistogramAggregation) {
         this._aggregation = aggregation;
-
-        this.scheduleData();
     }
 
     get aggregation(): HistogramAggregation {
@@ -228,8 +221,6 @@ export class HistogramSeries extends CartesianSeries {
     private _binCount: number | undefined = undefined;
     set binCount(binCount: number | undefined) {
         this._binCount = binCount;
-
-        this.scheduleData();
     }
 
     get binCount(): number | undefined {
@@ -240,7 +231,6 @@ export class HistogramSeries extends CartesianSeries {
     set xName(value: string) {
         if (this._xName !== value) {
             this._xName = value;
-            this.scheduleUpdate();
         }
     }
 
@@ -252,7 +242,6 @@ export class HistogramSeries extends CartesianSeries {
     set yKey(yKey: string) {
         this._yKey = yKey;
         this.seriesItemEnabled = true;
-        this.scheduleData();
     }
 
     get yKey(): string {
@@ -262,7 +251,6 @@ export class HistogramSeries extends CartesianSeries {
     protected _yName: string = '';
     set yName(values: string) {
         this._yName = values;
-        this.scheduleData();
     }
 
     get yName(): string {
@@ -273,7 +261,6 @@ export class HistogramSeries extends CartesianSeries {
     set strokeWidth(value: number) {
         if (this._strokeWidth !== value) {
             this._strokeWidth = value;
-            this.scheduleUpdate();
         }
     }
 
@@ -285,7 +272,6 @@ export class HistogramSeries extends CartesianSeries {
     set shadow(value: DropShadow | undefined) {
         if (this._shadow !== value) {
             this._shadow = value;
-            this.scheduleUpdate();
         }
     }
 
@@ -416,18 +402,11 @@ export class HistogramSeries extends CartesianSeries {
     }
 
     update(): void {
-        this.updatePending = false;
-
         this.updateSelections();
         this.updateNodes();
     }
 
     updateSelections() {
-        if (!this.nodeDataPending) {
-            return;
-        }
-        this.nodeDataPending = false;
-
         const nodeData = this.createNodeData();
 
         this.updateRectSelection(nodeData);
@@ -668,6 +647,5 @@ export class HistogramSeries extends CartesianSeries {
         if (itemId === this.yKey) {
             this.seriesItemEnabled = enabled;
         }
-        this.scheduleData();
     }
 }

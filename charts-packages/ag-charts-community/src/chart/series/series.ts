@@ -164,41 +164,6 @@ export abstract class Series extends Observable {
 
     getLabelData(): readonly PointLabelDatum[] { return []; }
 
-    private _nodeDataPending = true;
-    set nodeDataPending(value: boolean) {
-        if (this._nodeDataPending !== value) {
-            this._nodeDataPending = value;
-            this.updatePending = true;
-            if (value && this.chart) {
-                this.chart.updatePending = value;
-            }
-        }
-    }
-    get nodeDataPending(): boolean {
-        return this._nodeDataPending;
-    }
-
-    scheduleNodeDate() {
-        this.nodeDataPending = true;
-    }
-
-    private _updatePending = false;
-    set updatePending(value: boolean) {
-        if (this._updatePending !== value) {
-            this._updatePending = value;
-            if (value && this.chart) {
-                this.chart.updatePending = value;
-            }
-        }
-    }
-    get updatePending(): boolean {
-        return this._updatePending;
-    }
-
-    scheduleUpdate() {
-        this.updatePending = true;
-    }
-
     // Produce data joins and update selection's nodes using node data.
     abstract update(): void;
 
@@ -240,14 +205,6 @@ export abstract class Series extends Observable {
     // Each series is expected to have its own logic to efficiently update its nodes
     // on hightlight changes.
     onHighlightChange() { }
-
-    readonly scheduleLayout = () => {
-        this.fireEvent({ type: 'layoutChange' });
-    }
-
-    readonly scheduleData = () => {
-        this.fireEvent({ type: 'dataChange' });
-    }
 
     protected fixNumericExtent(extent?: [number | Date, number | Date], type?: string, axis?: ChartAxis): [number, number] {
         if (!extent) {

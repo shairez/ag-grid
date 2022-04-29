@@ -20,7 +20,7 @@ export class Line extends Shape {
     set x1(value: number) {
         if (this._x1 !== value) {
             this._x1 = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get x1(): number {
@@ -44,7 +44,7 @@ export class Line extends Shape {
     set y1(value: number) {
         if (this._y1 !== value) {
             this._y1 = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get y1(): number {
@@ -55,7 +55,7 @@ export class Line extends Shape {
     set x2(value: number) {
         if (this._x2 !== value) {
             this._x2 = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get x2(): number {
@@ -66,7 +66,7 @@ export class Line extends Shape {
     set y2(value: number) {
         if (this._y2 !== value) {
             this._y2 = value;
-            this.dirty = true;
+            this.markDirty();
         }
     }
     get y2(): number {
@@ -91,9 +91,7 @@ export class Line extends Shape {
     }
 
     render(ctx: CanvasRenderingContext2D): void {
-        if (this.dirtyTransform) {
-            this.computeTransformMatrix();
-        }
+        this.computeTransformMatrix();
         this.matrix.toContext(ctx);
 
         let x1 = this.x1;
@@ -118,7 +116,5 @@ export class Line extends Shape {
         ctx.lineTo(x2, y2);
 
         this.fillStroke(ctx);
-
-        this.dirty = false;
     }
 }

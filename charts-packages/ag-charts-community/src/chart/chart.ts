@@ -10,7 +10,7 @@ import { BBox } from "../scene/bbox";
 import { find } from "../util/array";
 import { SizeMonitor } from "../util/sizeMonitor";
 import { Caption } from "../caption";
-import { Observable, reactive, PropertyChangeEvent, SourceEvent } from "../util/observable";
+import { Observable, PropertyChangeEvent, SourceEvent } from "../util/observable";
 import { ChartAxis, ChartAxisDirection } from "./chartAxis";
 import { createId } from "../util/id";
 import { PlacedLabel, placeLabels, PointLabelDatum } from "../util/labelPlacement";
@@ -150,17 +150,17 @@ export class ChartTooltip extends Observable {
 
     private observer?: IntersectionObserver;
 
-    @reactive() enabled: boolean = true;
+    enabled: boolean = true;
 
-    @reactive() class: string = Chart.defaultTooltipClass;
+    class: string = Chart.defaultTooltipClass;
 
-    @reactive() delay: number = 0;
+    delay: number = 0;
 
     /**
      * If `true`, the tooltip will be shown for the marker closest to the mouse cursor.
      * Only has effect on series with markers.
      */
-    @reactive() tracking: boolean = true;
+    tracking: boolean = true;
 
     constructor(chart: Chart, document: Document) {
         super();
@@ -388,8 +388,8 @@ export abstract class Chart extends Observable {
     }
 
     padding = new Padding(20);
-    @reactive('layoutChange') title?: Caption;
-    @reactive('layoutChange') subtitle?: Caption;
+    title?: Caption;
+    subtitle?: Caption;
 
     private static tooltipDocuments: Document[] = [];
 

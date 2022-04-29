@@ -4,7 +4,7 @@ import { SeriesNodeDatum, CartesianTooltipRendererParams, SeriesTooltip, Series 
 import { extent } from "../../../util/array";
 import { LegendDatum } from "../../legend";
 import { LinearScale } from "../../../scale/linearScale";
-import { reactive, TypedEvent } from "../../../util/observable";
+import { TypedEvent } from "../../../util/observable";
 import { CartesianSeries, CartesianSeriesMarker, CartesianSeriesMarkerFormat } from "./cartesianSeries";
 import { ChartAxisDirection } from "../../chartAxis";
 import { getMarker } from "../../marker/util";
@@ -46,7 +46,7 @@ export interface ScatterTooltipRendererParams extends CartesianTooltipRendererPa
 }
 
 export class ScatterSeriesTooltip extends SeriesTooltip {
-    @reactive('change') renderer?: (params: ScatterTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: ScatterTooltipRendererParams) => string | TooltipRendererResult;
 }
 
 export class ScatterSeries extends CartesianSeries {
@@ -147,11 +147,11 @@ export class ScatterSeries extends CartesianSeries {
         this.updateMarkerNodes();
     }
 
-    @reactive('layoutChange') title?: string;
-    @reactive('dataChange') xKey: string = '';
-    @reactive('dataChange') yKey: string = '';
-    @reactive('dataChange') sizeKey?: string;
-    @reactive('dataChange') labelKey?: string;
+    title?: string;
+    xKey: string = '';
+    yKey: string = '';
+    sizeKey?: string;
+    labelKey?: string;
 
     xName: string = '';
     yName: string = '';
@@ -166,22 +166,17 @@ export class ScatterSeries extends CartesianSeries {
         const { marker, label } = this;
 
         marker.addPropertyListener('shape', this.onMarkerShapeChange, this);
-        marker.addEventListener('change', this.scheduleUpdate, this);
 
         this.addPropertyListener('xKey', () => this.xData = []);
         this.addPropertyListener('yKey', () => this.yData = []);
         this.addPropertyListener('sizeKey', () => this.sizeData = []);
 
         label.enabled = false;
-        label.addEventListener('change', this.scheduleUpdate, this);
-        label.addEventListener('dataChange', this.scheduleData, this);
     }
 
     onMarkerShapeChange() {
         this.markerSelection = this.markerSelection.setData([]);
         this.markerSelection.exit.remove();
-
-        this.fireEvent({ type: 'legendChange' });
     }
 
     setColors(fills: string[], strokes: string[]) {

@@ -1,6 +1,6 @@
 import { Group } from "../../scene/group";
 import { LegendDatum } from "../legend";
-import { Observable, reactive } from "../../util/observable";
+import { Observable } from "../../util/observable";
 import { ChartAxis, ChartAxisDirection } from "../chartAxis";
 import { Chart } from "../chart";
 import { createId } from "../../util/id";
@@ -82,8 +82,8 @@ export class HighlightStyle {
     readonly series = new SeriesHighlightStyle();
 }
 
-export class SeriesTooltip extends Observable {
-    @reactive('change') enabled = true;
+export class SeriesTooltip {
+    enabled = true;
 }
 
 export abstract class Series extends Observable {
@@ -114,9 +114,9 @@ export abstract class Series extends Observable {
 
     abstract tooltip: SeriesTooltip;
 
-    @reactive('dataChange') data?: any[] = undefined;
-    @reactive('dataChange') visible = true;
-    @reactive('layoutChange') showInLegend = true;
+    data?: any[] = undefined;
+    visible = true;
+    showInLegend = true;
 
     cursor = 'default';
 

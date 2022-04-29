@@ -14,7 +14,7 @@ import { LegendDatum } from "../../legend";
 import { CartesianSeries, CartesianSeriesMarker, CartesianSeriesMarkerFormat } from "./cartesianSeries";
 import { ChartAxisDirection } from "../../chartAxis";
 import { getMarker } from "../../marker/util";
-import { reactive, TypedEvent } from "../../../util/observable";
+import { TypedEvent } from "../../../util/observable";
 import { TooltipRendererResult, toTooltipHtml } from "../../chart";
 import { interpolate } from "../../../util/string";
 import { FontStyle, FontWeight } from "../../../scene/shape/text";
@@ -51,12 +51,12 @@ export interface LineSeriesNodeClickEvent extends TypedEvent {
 export { LineTooltipRendererParams };
 
 class LineSeriesLabel extends Label {
-    @reactive('change') formatter?: (params: { value: any }) => string;
+    formatter?: (params: { value: any }) => string;
 }
 
 export class LineSeriesTooltip extends SeriesTooltip {
-    @reactive('change') renderer?: (params: LineTooltipRendererParams) => string | TooltipRendererResult;
-    @reactive('change') format?: string;
+    renderer?: (params: LineTooltipRendererParams) => string | TooltipRendererResult;
+    format?: string;
 }
 
 export class LineSeries extends CartesianSeries {
@@ -80,13 +80,13 @@ export class LineSeries extends CartesianSeries {
 
     readonly label = new LineSeriesLabel();
 
-    @reactive('layoutChange') title?: string;
+    title?: string;
 
-    @reactive('update') stroke?: string = '#874349';
-    @reactive('update') lineDash?: number[] = [0];
-    @reactive('update') lineDashOffset: number = 0;
-    @reactive('update') strokeWidth: number = 2;
-    @reactive('update') strokeOpacity: number = 1;
+    stroke?: string = '#874349';
+    lineDash?: number[] = [0];
+    lineDashOffset: number = 0;
+    strokeWidth: number = 2;
+    strokeOpacity: number = 1;
 
     tooltip: LineSeriesTooltip = new LineSeriesTooltip();
 
@@ -100,24 +100,18 @@ export class LineSeries extends CartesianSeries {
         // Make line render before markers in the pick group.
         this.group.insertBefore(lineNode, this.pickGroup);
 
-        this.addEventListener('update', this.scheduleUpdate);
-
         const { marker, label } = this;
 
         marker.fill = '#c16068';
         marker.stroke = '#874349';
         marker.addPropertyListener('shape', this.onMarkerShapeChange, this);
-        marker.addEventListener('change', this.scheduleUpdate, this);
 
         label.enabled = false;
-        label.addEventListener('change', this.scheduleUpdate, this);
     }
 
     onMarkerShapeChange() {
         this.nodeSelection = this.nodeSelection.setData([]);
         this.nodeSelection.exit.remove();
-
-        this.fireEvent({ type: 'legendChange' });
     }
 
     setColors(fills: string[], strokes: string[]) {
@@ -138,7 +132,7 @@ export class LineSeries extends CartesianSeries {
         return this._xKey;
     }
 
-    @reactive('update') xName: string = '';
+    xName: string = '';
 
     protected _yKey: string = '';
     set yKey(value: string) {
@@ -152,7 +146,7 @@ export class LineSeries extends CartesianSeries {
         return this._yKey;
     }
 
-    @reactive('update') yName: string = '';
+    yName: string = '';
 
     processData(): boolean {
         const { xAxis, yAxis, xKey, yKey, xData, yData } = this;

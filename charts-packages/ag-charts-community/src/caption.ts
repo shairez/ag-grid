@@ -2,13 +2,13 @@ import { Padding } from "./util/padding";
 import { Text } from "./scene/shape/text";
 import { PointerEvents } from "./scene/node";
 import { FontStyle, FontWeight } from "./scene/shape/text";
-import { Observable, reactive } from "./util/observable";
+import { Observable } from "./util/observable";
 
 export class Caption extends Observable {
     readonly node: Text = new Text();
 
-    @reactive('change') enabled = false;
-    @reactive('change') padding = new Padding(10);
+    enabled = false;
+    padding = new Padding(10);
 
     set text(value: string) {
         if (this.node.text !== value) {

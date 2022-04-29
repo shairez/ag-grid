@@ -4,7 +4,7 @@ import { MarkerLabel } from "./markerLabel";
 import { BBox } from "../scene/bbox";
 import { FontStyle, FontWeight } from "../scene/shape/text";
 import { Marker } from "./marker/marker";
-import { reactive, Observable, PropertyChangeEvent, SourceEvent } from "../util/observable";
+import { Observable, PropertyChangeEvent, SourceEvent } from "../util/observable";
 import { getMarker } from "./marker/util";
 import { createId } from "../util/id";
 
@@ -49,26 +49,26 @@ interface LegendLabelFormatterParams {
 }
 
 export class LegendLabel extends Observable {
-    @reactive('change') color = 'black';
-    @reactive('layoutChange') fontStyle?: FontStyle;
-    @reactive('layoutChange') fontWeight?: FontWeight;
-    @reactive('layoutChange') fontSize = 12;
-    @reactive('layoutChange') fontFamily = 'Verdana, sans-serif';
-    @reactive() formatter?: (params: LegendLabelFormatterParams) => string;
+    color = 'black';
+    fontStyle?: FontStyle;
+    fontWeight?: FontWeight;
+    fontSize = 12;
+    fontFamily = 'Verdana, sans-serif';
+    formatter?: (params: LegendLabelFormatterParams) => string;
 }
 
 export class LegendMarker extends Observable {
-    @reactive('layoutChange') size = 15;
+    size = 15;
     /**
      * If the marker type is set, the legend will always use that marker type for all its items,
      * regardless of the type that comes from the `data`.
      */
-    @reactive('layoutChange') shape?: string | (new () => Marker);
+    shape?: string | (new () => Marker);
     /**
      * Padding between the marker and the label within each legend item.
      */
-    @reactive('layoutChange') padding: number = 8;
-    @reactive('change') strokeWidth: number = 1;
+    padding: number = 8;
+    strokeWidth: number = 1;
 }
 
 export class LegendItem extends Observable {
@@ -79,13 +79,13 @@ export class LegendItem extends Observable {
      * and as few rows as possible when positioned to top or bottom. This config specifies the amount of horizontal
      * padding between legend items.
      */
-    @reactive('layoutChange') paddingX = 16;
+    paddingX = 16;
     /**
      * The legend uses grid layout for its items, occupying as few columns as possible when positioned to left or right,
      * and as few rows as possible when positioned to top or bottom. This config specifies the amount of vertical
      * padding between legend items.
      */
-    @reactive('layoutChange') paddingY = 8;
+    paddingY = 8;
 
     constructor() {
         super();
@@ -116,15 +116,15 @@ export class Legend extends Observable {
 
     readonly item = new LegendItem();
 
-    @reactive('layoutChange') data: LegendDatum[] = [];
-    @reactive('layoutChange') enabled = true;
-    @reactive('layoutChange') orientation: LegendOrientation = LegendOrientation.Vertical;
-    @reactive('layoutChange') position: LegendPosition = LegendPosition.Right;
+    data: LegendDatum[] = [];
+    enabled = true;
+    orientation: LegendOrientation = LegendOrientation.Vertical;
+    position: LegendPosition = LegendPosition.Right;
 
     /**
      * Spacing between the legend and the edge of the chart's element.
      */
-    @reactive('layoutChange') spacing = 20;
+    spacing = 20;
 
     constructor() {
         super();

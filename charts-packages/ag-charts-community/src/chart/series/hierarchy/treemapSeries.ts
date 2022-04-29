@@ -1,6 +1,6 @@
 import { Selection } from "../../../scene/selection";
 import { HdpiCanvas } from "../../../canvas/hdpiCanvas";
-import { reactive, TypedEvent } from "../../../util/observable";
+import { TypedEvent } from "../../../util/observable";
 import { Label } from "../../label";
 import { SeriesNodeDatum, SeriesTooltip, TooltipRendererParams } from "../series";
 import { HierarchySeries } from "./hierarchySeries";
@@ -41,7 +41,7 @@ export interface TreemapTooltipRendererParams extends TooltipRendererParams {
 }
 
 export class TreemapSeriesTooltip extends SeriesTooltip {
-    @reactive('change') renderer?: (params: TreemapTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: TreemapTooltipRendererParams) => string | TooltipRendererResult;
 }
 
 export interface TreemapSeriesNodeClickEvent extends TypedEvent {
@@ -55,7 +55,7 @@ export interface TreemapSeriesNodeClickEvent extends TypedEvent {
 }
 
 export class TreemapSeriesLabel extends Label {
-    @reactive('change') padding = 10;
+    padding = 10;
 }
 
 enum TextNodeTag {
@@ -73,18 +73,6 @@ export class TreemapSeries extends HierarchySeries {
     private labelMap = new Map<number, Text>();
     private layout = new Treemap();
     private dataRoot?: TreemapNodeDatum;
-
-    constructor() {
-        super();
-
-        this.shadow.addEventListener('change', this.scheduleUpdate, this);
-        this.title.addEventListener('change', this.scheduleUpdate, this);
-        this.subtitle.addEventListener('change', this.scheduleUpdate, this);
-        this.labels.small.addEventListener('change', this.scheduleUpdate, this);
-        this.labels.medium.addEventListener('change', this.scheduleUpdate, this);
-        this.labels.large.addEventListener('change', this.scheduleUpdate, this);
-        this.labels.color.addEventListener('change', this.scheduleUpdate, this);
-    }
 
     readonly title: TreemapSeriesLabel = (() => {
         const label = new TreemapSeriesLabel();
@@ -146,13 +134,13 @@ export class TreemapSeries extends HierarchySeries {
         return this._nodePadding;
     }
 
-    @reactive('dataChange') labelKey: string = 'label';
-    @reactive('dataChange') sizeKey?: string = 'size';
-    @reactive('dataChange') colorKey?: string = 'color';
-    @reactive('dataChange') colorDomain: number[] = [-5, 5];
-    @reactive('dataChange') colorRange: string[] = ['#cb4b3f', '#6acb64'];
-    @reactive('dataChange') colorParents: boolean = false;
-    @reactive('update') gradient: boolean = true;
+    labelKey: string = 'label';
+    sizeKey?: string = 'size';
+    colorKey?: string = 'color';
+    colorDomain: number[] = [-5, 5];
+    colorRange: string[] = ['#cb4b3f', '#6acb64'];
+    colorParents: boolean = false;
+    gradient: boolean = true;
 
     colorName: string = 'Change';
     rootName: string = 'Root';

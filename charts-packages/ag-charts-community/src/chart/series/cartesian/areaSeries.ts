@@ -16,7 +16,7 @@ import { getMarker } from "../../marker/util";
 import { TooltipRendererResult, toTooltipHtml } from "../../chart";
 import { extent } from "../../../util/array";
 import { equal } from "../../../util/equal";
-import { reactive, TypedEvent } from "../../../util/observable";
+import { TypedEvent } from "../../../util/observable";
 import { interpolate } from "../../../util/string";
 import { Text } from "../../../scene/shape/text";
 import { Label } from "../../label";
@@ -85,12 +85,12 @@ type ProcessedXDatum = {
 }
 
 class AreaSeriesLabel extends Label {
-    @reactive('change') formatter?: (params: { value: any }) => string;
+    formatter?: (params: { value: any }) => string;
 }
 
 export class AreaSeriesTooltip extends SeriesTooltip {
-    @reactive('change') renderer?: (params: AreaTooltipRendererParams) => string | TooltipRendererResult;
-    @reactive('change') format?: string;
+    renderer?: (params: AreaTooltipRendererParams) => string | TooltipRendererResult;
+    format?: string;
 }
 
 export class AreaSeries extends CartesianSeries {
@@ -134,7 +134,7 @@ export class AreaSeries extends CartesianSeries {
 
     readonly label = new AreaSeriesLabel();
 
-    @reactive('dataChange') fills: string[] = [
+    fills: string[] = [
         '#c16068',
         '#a2bf8a',
         '#ebcc87',
@@ -143,7 +143,7 @@ export class AreaSeries extends CartesianSeries {
         '#85c0d1'
     ];
 
-    @reactive('dataChange') strokes: string[] = [
+    strokes: string[] = [
         '#874349',
         '#718661',
         '#a48f5f',
@@ -152,32 +152,26 @@ export class AreaSeries extends CartesianSeries {
         '#5d8692'
     ];
 
-    @reactive('update') fillOpacity = 1;
-    @reactive('update') strokeOpacity = 1;
+    fillOpacity = 1;
+    strokeOpacity = 1;
 
-    @reactive('update') lineDash?: number[] = [0];
-    @reactive('update') lineDashOffset: number = 0;
+    lineDash?: number[] = [0];
+    lineDashOffset: number = 0;
 
     constructor() {
         super();
-
-        this.addEventListener('update', this.scheduleUpdate);
 
         const { marker, label } = this;
 
         marker.enabled = false;
         marker.addPropertyListener('shape', this.onMarkerShapeChange, this);
-        marker.addEventListener('change', this.scheduleUpdate, this);
 
         label.enabled = false;
-        label.addEventListener('change', this.scheduleUpdate, this);
     }
 
     onMarkerShapeChange() {
         this.markerSelection = this.markerSelection.setData([]);
         this.markerSelection.exit.remove();
-
-        this.fireEvent({ type: 'legendChange' });
     }
 
     protected _xKey: string = '';
@@ -193,7 +187,7 @@ export class AreaSeries extends CartesianSeries {
         return this._xKey;
     }
 
-    @reactive('update') xName: string = '';
+    xName: string = '';
 
     protected _yKeys: string[] = [];
     set yKeys(values: string[]) {
@@ -218,7 +212,7 @@ export class AreaSeries extends CartesianSeries {
         this.strokes = strokes;
     }
 
-    @reactive('update') yNames: string[] = [];
+    yNames: string[] = [];
 
     private _normalizedTo?: number;
     set normalizedTo(value: number | undefined) {
@@ -234,8 +228,8 @@ export class AreaSeries extends CartesianSeries {
         return this._normalizedTo;
     }
 
-    @reactive('update') strokeWidth = 2;
-    @reactive('update') shadow?: DropShadow;
+    strokeWidth = 2;
+    shadow?: DropShadow;
 
     protected highlightedDatum?: MarkerSelectionDatum;
 

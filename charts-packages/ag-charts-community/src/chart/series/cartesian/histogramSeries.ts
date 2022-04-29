@@ -14,7 +14,7 @@ import { CartesianSeries } from "./cartesianSeries";
 import { ChartAxisDirection } from "../../chartAxis";
 import { TooltipRendererResult, toTooltipHtml } from "../../chart";
 import { extent } from "../../../util/array";
-import { reactive, TypedEvent } from "../../../util/observable";
+import { TypedEvent } from "../../../util/observable";
 import ticks, { tickStep } from "../../../util/ticks";
 import { sanitizeHtml } from "../../../util/sanitize";
 import { isContinuous } from "../../../util/value";
@@ -25,7 +25,7 @@ enum HistogramSeriesNodeTag {
 }
 
 class HistogramSeriesLabel extends Label {
-    @reactive('change') formatter?: (params: { value: number }) => string;
+    formatter?: (params: { value: number }) => string;
 }
 
 const defaultBinCount = 10;
@@ -110,7 +110,7 @@ export class HistogramBin {
 }
 
 export class HistogramSeriesTooltip extends SeriesTooltip {
-    @reactive('change') renderer?: (params: HistogramTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: HistogramTooltipRendererParams) => string | TooltipRendererResult;
 }
 
 export class HistogramSeries extends CartesianSeries {
@@ -138,20 +138,19 @@ export class HistogramSeries extends CartesianSeries {
 
     tooltip: HistogramSeriesTooltip = new HistogramSeriesTooltip();
 
-    @reactive('dataChange') fill: string | undefined = undefined;
-    @reactive('dataChange') stroke: string | undefined = undefined;
+    fill: string | undefined = undefined;
+    stroke: string | undefined = undefined;
 
-    @reactive('layoutChange') fillOpacity = 1;
-    @reactive('layoutChange') strokeOpacity = 1;
+    fillOpacity = 1;
+    strokeOpacity = 1;
 
-    @reactive('update') lineDash?: number[] = [0];
-    @reactive('update') lineDashOffset: number = 0;
+    lineDash?: number[] = [0];
+    lineDashOffset: number = 0;
 
     constructor() {
         super();
 
         this.label.enabled = false;
-        this.label.addEventListener('change', this.scheduleUpdate, this);
     }
 
     directionKeys = {

@@ -694,8 +694,9 @@ export abstract class Chart extends Observable {
     update() {
         this.series.forEach(series => {
             series.update();
-            }
         });
+
+        this.scene.render();
     }
 
     protected positionCaptions() {

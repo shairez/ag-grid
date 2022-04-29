@@ -202,7 +202,6 @@ function applyChartOptions<
         registerListeners(chart, options.listeners);
     }
 
-    chart.layoutPending = true;
     if (performProcessData) {
         chart.processData();
     }
@@ -210,6 +209,8 @@ function applyChartOptions<
 
     chart.options = jsonMerge(chart.options || {}, options);
     chart.userOptions = jsonMerge(chart.userOptions || {}, userOptions);
+
+    chart.update();
 }
 
 function applySeries<

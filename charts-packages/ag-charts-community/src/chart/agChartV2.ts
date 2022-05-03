@@ -35,7 +35,7 @@ import { NumberAxis } from './axis/numberAxis';
 import { CategoryAxis } from './axis/categoryAxis';
 import { GroupedCategoryAxis } from './axis/groupedCategoryAxis';
 import { TimeAxis } from './axis/timeAxis';
-import { Chart } from './chart';
+import { Chart, ChartUpdateType } from './chart';
 import { SourceEventListener } from '../util/observable';
 import { DropShadow } from '../scene/dropShadow';
 import { jsonDiff, jsonMerge, jsonApply } from '../util/json';
@@ -182,16 +182,19 @@ function applyChartOptions<
         throw new Error(`AG Charts - couldn\'t apply configuration, check type of options and chart: ${options['type']}`);
     }
 
-    let performProcessData = false;
+    let updateType = ChartUpdateType.PERFORM_LAYOUT;
     if (options.series && options.series.length > 0) {
         applySeries<T, O>(chart, options);
     }
     if (isAgCartesianChartOptions(options) && options.axes) {
-        performProcessData = applyAxes<T, O>(chart, options);
+        const axesPresent = applyAxes<T, O>(chart, options);
+        if (axesPresent) {
+            updateType = ChartUpdateType.PROCESS_DATA;
+        }
     }
     if (options.data) {
         chart.data = options.data;
-        performProcessData = true;
+        updateType = ChartUpdateType.PROCESS_DATA;
     }
 
     // Needs to be done last to avoid overrides by width/height properties.
@@ -202,15 +205,10 @@ function applyChartOptions<
         registerListeners(chart, options.listeners);
     }
 
-    if (performProcessData) {
-        chart.processData();
-    }
-    chart.performLayout();
-
     chart.options = jsonMerge(chart.options || {}, options);
     chart.userOptions = jsonMerge(chart.userOptions || {}, userOptions);
 
-    chart.update();
+    chart.update(updateType);
 }
 
 function applySeries<

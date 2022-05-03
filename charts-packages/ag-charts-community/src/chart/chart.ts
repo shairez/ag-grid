@@ -15,6 +15,7 @@ import { ChartAxis, ChartAxisDirection } from "./chartAxis";
 import { createId } from "../util/id";
 import { PlacedLabel, placeLabels, PointLabelDatum } from "../util/labelPlacement";
 import { AgChartOptions } from "./agChartOptions";
+import { debouncedAnimationFrame } from "../util/render";
 
 const defaultTooltipCss = `
 .ag-chart-tooltip {
@@ -288,6 +289,16 @@ export class ChartTooltip extends Observable {
     }
 }
 
+/** Types of chart-update, in pipeline execution order. */
+export enum ChartUpdateType {
+    FULL,
+    PROCESS_DATA,
+    PERFORM_LAYOUT,
+    SERIES_UPDATE,
+    SCENE_RENDER,
+    NONE,
+}
+
 export abstract class Chart extends Observable {
     readonly id = createId(this);
 
@@ -436,6 +447,41 @@ export abstract class Chart extends Observable {
 
         this.cleanupDomListeners(this.scene.canvas.element);
         this.scene.container = undefined;
+    }
+
+    private pendingUpdateType: ChartUpdateType = ChartUpdateType.NONE;
+    private performUpdateTrigger = debouncedAnimationFrame(() => {
+        this.performUpdate();
+    });
+    public update(type = ChartUpdateType.FULL) {
+        if (type < this.pendingUpdateType) {
+            this.pendingUpdateType = type;
+            this.performUpdateTrigger.schedule();
+        }
+    }
+    private performUpdate() {
+        const { pendingUpdateType } = this;
+        const start = performance.now();
+
+        switch (pendingUpdateType) {
+            case ChartUpdateType.FULL:
+            case ChartUpdateType.PROCESS_DATA:
+                this.processData();
+            case ChartUpdateType.PERFORM_LAYOUT:
+                this.performLayout();
+            case ChartUpdateType.SERIES_UPDATE:
+                this.series.forEach(series => {
+                    series.update();
+                });
+            case ChartUpdateType.SCENE_RENDER:
+                this.scene.render();
+            case ChartUpdateType.NONE:
+                // Do nothing.
+        }
+        const end = performance.now();
+        console.log({ durationMs: end - start, pendingUpdateType: ChartUpdateType[pendingUpdateType] });
+
+        this.pendingUpdateType = ChartUpdateType.NONE;
     }
 
     private onLegendPositionChange() {
@@ -638,11 +684,12 @@ export abstract class Chart extends Observable {
 
     private resize(width: number, height: number) {
         this.scene.resize(width, height);
+        
+        this.update(ChartUpdateType.PERFORM_LAYOUT);
     }
 
     processData(): void {
         this.assignAxesToSeries(true);
-        this.assignSeriesToAxes();
         this.assignSeriesToAxes();
 
         this.series.forEach(s => s.processData());
@@ -693,14 +740,6 @@ export abstract class Chart extends Observable {
     }
 
     abstract performLayout(): void;
-
-    update() {
-        this.series.forEach(series => {
-            series.update();
-        });
-
-        this.scene.render();
-    }
 
     protected positionCaptions() {
         const { title, subtitle } = this;
@@ -1019,9 +1058,11 @@ export abstract class Chart extends Observable {
 
     protected onClick(event: MouseEvent) {
         if (this.checkSeriesNodeClick()) {
+            this.update(ChartUpdateType.SERIES_UPDATE);
             return;
         }
         if (this.checkLegendClick(event)) {
+            this.update(ChartUpdateType.PROCESS_DATA);
             return;
         }
         this.fireEvent<ChartClickEvent>({

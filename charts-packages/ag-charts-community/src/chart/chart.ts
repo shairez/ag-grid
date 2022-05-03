@@ -5,12 +5,12 @@ import { Padding } from "../util/padding";
 import { Shape } from "../scene/shape/shape";
 import { Node } from "../scene/node";
 import { Rect } from "../scene/shape/rect";
-import { Legend, LegendClickEvent, LegendDatum } from "./legend";
+import { Legend, LegendDatum } from "./legend";
 import { BBox } from "../scene/bbox";
 import { find } from "../util/array";
 import { SizeMonitor } from "../util/sizeMonitor";
 import { Caption } from "../caption";
-import { Observable, PropertyChangeEvent, SourceEvent } from "../util/observable";
+import { Observable, SourceEvent } from "../util/observable";
 import { ChartAxis, ChartAxisDirection } from "./chartAxis";
 import { createId } from "../util/id";
 import { PlacedLabel, placeLabels, PointLabelDatum } from "../util/labelPlacement";
@@ -396,8 +396,30 @@ export abstract class Chart extends Observable {
     }
 
     padding = new Padding(20);
-    title?: Caption = undefined;
-    subtitle?: Caption = undefined;
+
+    _title?: Caption = undefined;
+    set title(caption: Caption | undefined) {
+        const { root } = this.scene;
+        if (this._title != null) {
+            root?.removeChild(this._title.node);
+        }
+        this._title = caption;
+        if (this._title != null) {
+            root?.appendChild(this._title.node);
+        }
+    }
+    
+    _subtitle?: Caption = undefined;
+    set subtitle(caption: Caption | undefined) {
+        const { root } = this.scene;
+        if (this._subtitle != null) {
+            root?.removeChild(this._subtitle.node);
+        }
+        this._subtitle = caption;
+        if (this._subtitle != null) {
+            root?.appendChild(this._subtitle.node);
+        }
+    }
 
     private static tooltipDocuments: Document[] = [];
 
@@ -435,9 +457,6 @@ export abstract class Chart extends Observable {
         }
 
         this.setupDomListeners(scene.canvas.element);
-
-        this.addPropertyListener('title', this.onCaptionChange);
-        this.addPropertyListener('subtitle', this.onCaptionChange);
     }
 
     destroy() {
@@ -449,25 +468,33 @@ export abstract class Chart extends Observable {
         this.scene.container = undefined;
     }
 
-    private pendingUpdateType: ChartUpdateType = ChartUpdateType.NONE;
-    private performUpdateTrigger = debouncedAnimationFrame(() => {
-        this.performUpdate();
+    private performUpdateType: ChartUpdateType = ChartUpdateType.NONE;
+    private firstRenderComplete = false;
+    private performUpdateTrigger = debouncedAnimationFrame(({ count }) => {
+        this.performUpdate(count);
     });
     public update(type = ChartUpdateType.FULL) {
-        if (type < this.pendingUpdateType) {
-            this.pendingUpdateType = type;
+        if (type < this.performUpdateType) {
+            this.performUpdateType = type;
             this.performUpdateTrigger.schedule();
         }
     }
-    private performUpdate() {
-        const { pendingUpdateType } = this;
+    private performUpdate(count: number) {
+        const { performUpdateType, firstRenderComplete, width, height } = this;
         const start = performance.now();
 
-        switch (pendingUpdateType) {
+        switch (performUpdateType) {
             case ChartUpdateType.FULL:
             case ChartUpdateType.PROCESS_DATA:
                 this.processData();
             case ChartUpdateType.PERFORM_LAYOUT:
+                if (!firstRenderComplete && width === 0 && height === 0) {
+                    // Reschedule if canvas size hasn't been set yet to avoid a race.
+                    this.performUpdateType = ChartUpdateType.PERFORM_LAYOUT;
+                    this.performUpdateTrigger.schedule();
+                    break;
+                }
+
                 this.performLayout();
             case ChartUpdateType.SERIES_UPDATE:
                 this.series.forEach(series => {
@@ -475,28 +502,22 @@ export abstract class Chart extends Observable {
                 });
             case ChartUpdateType.SCENE_RENDER:
                 this.scene.render();
+                this.firstRenderComplete = true;
             case ChartUpdateType.NONE:
                 // Do nothing.
+                this.performUpdateType = ChartUpdateType.NONE;
         }
         const end = performance.now();
-        console.log({ durationMs: end - start, pendingUpdateType: ChartUpdateType[pendingUpdateType] });
+        console.log({
+            durationMs: Math.round((end - start)/100) * 100,
+            count,
+            performUpdateType: ChartUpdateType[performUpdateType],
+        });
 
-        this.pendingUpdateType = ChartUpdateType.NONE;
     }
 
     private onLegendPositionChange() {
         this.legendAutoPadding.clear();
-    }
-
-    private onCaptionChange(event: PropertyChangeEvent<this, Caption | undefined>) {
-        const { value, oldValue } = event;
-
-        if (oldValue) {
-            this.scene.root!.removeChild(oldValue.node);
-        }
-        if (value) {
-            this.scene.root!.appendChild(value.node);
-        }
     }
 
     protected _element: HTMLElement;
@@ -742,7 +763,7 @@ export abstract class Chart extends Observable {
     abstract performLayout(): void;
 
     protected positionCaptions() {
-        const { title, subtitle } = this;
+        const { _title: title, _subtitle: subtitle } = this;
 
         let titleVisible = false;
         let subtitleVisible = false;

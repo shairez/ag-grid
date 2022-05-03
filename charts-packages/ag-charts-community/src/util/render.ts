@@ -3,15 +3,16 @@
  * after the first schedule() call, and subsequent schedule() calls will be ignored until the
  * animation callback executes.
  */
-export function debouncedAnimationFrame(cb: () => void): { schedule(): void } {
+export function debouncedAnimationFrame(cb: (params: { count: number}) => void): { schedule(): void } {
     let scheduleCount = 0;
 
     return {
         schedule() {
             if (scheduleCount === 0) {
                 requestAnimationFrame(() => {
+                    const count = scheduleCount;
                     scheduleCount = 0;
-                    cb();
+                    cb({ count });
                 });
             }
             scheduleCount++;

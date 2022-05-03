@@ -53,7 +53,7 @@ export abstract class CartesianChartProxy extends ChartProxy {
             const xAxisOptions = this.getAxesOptions()[this.xAxisType];
             chartXAxisLabel.rotation = xAxisOptions.label.rotation;
         }
-        this.chart.layoutPending = true;
+        // this.chart.layoutPending = true;
     }
 
     protected getAxesOptions(chartSeriesType: ChartSeriesType = this.standaloneChartType) {

@@ -22,17 +22,17 @@ export class SeriesMarker extends Observable {
      */
     maxSize = 30;
 
-    domain?: [number, number];
+    domain?: [number, number] = undefined;
 
-    fill?: string;
+    fill?: string = undefined;
 
-    stroke?: string;
+    stroke?: string = undefined;
 
     strokeWidth?: number = 1;
 
-    fillOpacity?: number;
+    fillOpacity?: number = undefined;
 
-    strokeOpacity?: number;
+    strokeOpacity?: number = undefined;
 }
 
 export interface SeriesMarkerFormatterParams {

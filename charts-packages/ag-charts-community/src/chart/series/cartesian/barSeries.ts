@@ -71,7 +71,7 @@ export enum BarLabelPlacement {
 }
 
 export class BarSeriesLabel extends Label {
-    formatter?: (params: { value: number }) => string;
+    formatter?: (params: { value: number }) => string = undefined;
     placement = BarLabelPlacement.Inside;
 }
 
@@ -92,7 +92,7 @@ export interface BarSeriesFormat {
 }
 
 export class BarSeriesTooltip extends SeriesTooltip {
-    renderer?: (params: BarTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: BarTooltipRendererParams) => string | TooltipRendererResult = undefined;
 }
 
 function flat(arr: any[], target: any[] = []): any[] {
@@ -166,7 +166,7 @@ export class BarSeries extends CartesianSeries {
     lineDash?: number[] = [0];
     lineDashOffset: number = 0;
 
-    formatter?: (params: BarSeriesFormatterParams) => BarSeriesFormat;
+    formatter?: (params: BarSeriesFormatterParams) => BarSeriesFormat = undefined;
 
     constructor() {
         super();

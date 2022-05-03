@@ -85,12 +85,12 @@ type ProcessedXDatum = {
 }
 
 class AreaSeriesLabel extends Label {
-    formatter?: (params: { value: any }) => string;
+    formatter?: (params: { value: any }) => string = undefined;
 }
 
 export class AreaSeriesTooltip extends SeriesTooltip {
-    renderer?: (params: AreaTooltipRendererParams) => string | TooltipRendererResult;
-    format?: string;
+    renderer?: (params: AreaTooltipRendererParams) => string | TooltipRendererResult = undefined;
+    format?: string = undefined;
 }
 
 export class AreaSeries extends CartesianSeries {
@@ -225,7 +225,7 @@ export class AreaSeries extends CartesianSeries {
     }
 
     strokeWidth = 2;
-    shadow?: DropShadow;
+    shadow?: DropShadow = undefined;
 
     protected highlightedDatum?: MarkerSelectionDatum;
 

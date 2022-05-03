@@ -388,8 +388,8 @@ export abstract class Chart extends Observable {
     }
 
     padding = new Padding(20);
-    title?: Caption;
-    subtitle?: Caption;
+    title?: Caption = undefined;
+    subtitle?: Caption = undefined;
 
     private static tooltipDocuments: Document[] = [];
 

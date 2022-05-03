@@ -25,7 +25,7 @@ enum HistogramSeriesNodeTag {
 }
 
 class HistogramSeriesLabel extends Label {
-    formatter?: (params: { value: number }) => string;
+    formatter?: (params: { value: number }) => string = undefined;
 }
 
 const defaultBinCount = 10;
@@ -110,7 +110,7 @@ export class HistogramBin {
 }
 
 export class HistogramSeriesTooltip extends SeriesTooltip {
-    renderer?: (params: HistogramTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: HistogramTooltipRendererParams) => string | TooltipRendererResult = undefined;
 }
 
 export class HistogramSeries extends CartesianSeries {

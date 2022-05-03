@@ -41,7 +41,7 @@ export interface TreemapTooltipRendererParams extends TooltipRendererParams {
 }
 
 export class TreemapSeriesTooltip extends SeriesTooltip {
-    renderer?: (params: TreemapTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: TreemapTooltipRendererParams) => string | TooltipRendererResult = undefined;
 }
 
 export interface TreemapSeriesNodeClickEvent extends TypedEvent {

@@ -77,7 +77,7 @@ export interface PieSeriesFormat {
 class PieSeriesLabel extends Label {
     offset = 3; // from the callout line
     minAngle = 20; // in degrees
-    formatter?: (params: { value: any }) => string;
+    formatter?: (params: { value: any }) => string = undefined;
 }
 
 class PieSeriesCallout extends Observable {
@@ -94,7 +94,7 @@ class PieSeriesCallout extends Observable {
 }
 
 export class PieSeriesTooltip extends SeriesTooltip {
-    renderer?: (params: PieTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: PieTooltipRendererParams) => string | TooltipRendererResult = undefined;
 }
 
 export class PieTitle extends Caption {
@@ -174,13 +174,13 @@ export class PieSeries extends PolarSeries {
      * The largest value will correspond to the full radius and smaller values to
      * proportionally smaller radii.
      */
-    radiusKey?: string;
-    radiusName?: string;
-    radiusMin?: number;
-    radiusMax?: number;
+    radiusKey?: string = undefined;
+    radiusName?: string = undefined;
+    radiusMin?: number = undefined;
+    radiusMax?: number = undefined;
 
-    labelKey?: string;
-    labelName?: string;
+    labelKey?: string = undefined;
+    labelName?: string = undefined;
 
     private _fills: string[] = [
         '#c16068',
@@ -218,7 +218,7 @@ export class PieSeries extends PolarSeries {
     lineDash?: number[] = [0];
     lineDashOffset: number = 0;
 
-    formatter?: (params: PieSeriesFormatterParams) => PieSeriesFormat;
+    formatter?: (params: PieSeriesFormatterParams) => PieSeriesFormat = undefined;
 
     /**
      * The series rotation in degrees.
@@ -231,7 +231,7 @@ export class PieSeries extends PolarSeries {
 
     strokeWidth = 1;
 
-    shadow?: DropShadow;
+    shadow?: DropShadow = undefined;
 
     readonly highlightStyle = new PieHighlightStyle();
 

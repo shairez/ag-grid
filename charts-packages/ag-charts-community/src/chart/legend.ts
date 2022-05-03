@@ -50,11 +50,11 @@ interface LegendLabelFormatterParams {
 
 export class LegendLabel extends Observable {
     color = 'black';
-    fontStyle?: FontStyle;
-    fontWeight?: FontWeight;
+    fontStyle?: FontStyle = undefined;
+    fontWeight?: FontWeight = undefined;
     fontSize = 12;
     fontFamily = 'Verdana, sans-serif';
-    formatter?: (params: LegendLabelFormatterParams) => string;
+    formatter?: (params: LegendLabelFormatterParams) => string = undefined;
 }
 
 export class LegendMarker extends Observable {
@@ -63,7 +63,7 @@ export class LegendMarker extends Observable {
      * If the marker type is set, the legend will always use that marker type for all its items,
      * regardless of the type that comes from the `data`.
      */
-    shape?: string | (new () => Marker);
+    shape?: string | (new () => Marker) = undefined;
     /**
      * Padding between the marker and the label within each legend item.
      */

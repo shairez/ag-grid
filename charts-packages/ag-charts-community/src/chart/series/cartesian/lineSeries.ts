@@ -51,12 +51,12 @@ export interface LineSeriesNodeClickEvent extends TypedEvent {
 export { LineTooltipRendererParams };
 
 class LineSeriesLabel extends Label {
-    formatter?: (params: { value: any }) => string;
+    formatter?: (params: { value: any }) => string = undefined;
 }
 
 export class LineSeriesTooltip extends SeriesTooltip {
-    renderer?: (params: LineTooltipRendererParams) => string | TooltipRendererResult;
-    format?: string;
+    renderer?: (params: LineTooltipRendererParams) => string | TooltipRendererResult = undefined;
+    format?: string = undefined;
 }
 
 export class LineSeries extends CartesianSeries {
@@ -80,7 +80,7 @@ export class LineSeries extends CartesianSeries {
 
     readonly label = new LineSeriesLabel();
 
-    title?: string;
+    title?: string = undefined;
 
     stroke?: string = '#874349';
     lineDash?: number[] = [0];

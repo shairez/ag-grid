@@ -46,7 +46,7 @@ export interface ScatterTooltipRendererParams extends CartesianTooltipRendererPa
 }
 
 export class ScatterSeriesTooltip extends SeriesTooltip {
-    renderer?: (params: ScatterTooltipRendererParams) => string | TooltipRendererResult;
+    renderer?: (params: ScatterTooltipRendererParams) => string | TooltipRendererResult = undefined;
 }
 
 export class ScatterSeries extends CartesianSeries {
@@ -142,11 +142,11 @@ export class ScatterSeries extends CartesianSeries {
         this.updateMarkerNodes();
     }
 
-    title?: string;
+    title?: string = undefined;
     xKey: string = '';
     yKey: string = '';
-    sizeKey?: string;
-    labelKey?: string;
+    sizeKey?: string = undefined;
+    labelKey?: string = undefined;
 
     xName: string = '';
     yName: string = '';

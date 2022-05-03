@@ -378,8 +378,6 @@ export class HistogramSeries extends CartesianSeries {
         const xMax = lastBin.domain[1];
         this.xDomain = [xMin, xMax];
 
-        this.fireEvent({ type: 'dataProcessed' });
-
         return true;
     }
 

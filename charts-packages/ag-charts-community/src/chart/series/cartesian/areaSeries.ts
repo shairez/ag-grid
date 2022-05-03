@@ -361,8 +361,6 @@ export class AreaSeries extends CartesianSeries {
 
         this.yDomain = this.fixNumericExtent([yMin, yMax], 'y', yAxis);
 
-        this.fireEvent({ type: 'dataProcessed' });
-
         return true;
     }
 

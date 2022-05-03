@@ -334,8 +334,7 @@ export abstract class Chart extends Observable {
     set width(value: number) {
         this.autoSize = false;
         if (this.width !== value) {
-            this.scene.resize(value, this.height);
-            this.fireEvent({ type: 'layoutChange' });
+            this.resize(value, this.height);
         }
     }
     get width(): number {
@@ -345,8 +344,7 @@ export abstract class Chart extends Observable {
     set height(value: number) {
         this.autoSize = false;
         if (this.height !== value) {
-            this.scene.resize(this.width, value);
-            this.fireEvent({ type: 'layoutChange' });
+            this.resize(this.width, value);
         }
     }
     get height(): number {
@@ -362,8 +360,7 @@ export abstract class Chart extends Observable {
                 const chart = this; // capture `this` for IE11
                 SizeMonitor.observe(this.element, size => {
                     if (size.width !== chart.width || size.height !== chart.height) {
-                        chart.scene.resize(size.width, size.height);
-                        chart.fireEvent({ type: 'layoutChange' });
+                        chart.resize(size.width, size.height);
                     }
                 });
                 style.display = 'block';
@@ -607,34 +604,40 @@ export abstract class Chart extends Observable {
         this.series.forEach(series => {
             series.directions.forEach(direction => {
                 const axisName = direction + 'Axis';
-                if (!(series as any)[axisName] || force) {
-                    const directionAxes = directionToAxesMap[direction];
-                    if (directionAxes) {
-                        const axis = this.findMatchingAxis(directionAxes, series.getKeys(direction));
-                        if (axis) {
-                            (series as any)[axisName] = axis;
-                        }
-                    }
+                if ((series as any)[axisName] && !force) {
+                    return;
                 }
+                const directionAxes = directionToAxesMap[direction];
+                if (!directionAxes) {
+                    return;
+                }
+                (series as any)[axisName] = this.findMatchingAxis(directionAxes, series.getKeys(direction));
             });
         });
     }
 
     private findMatchingAxis(directionAxes: ChartAxis[], directionKeys?: string[]): ChartAxis | undefined {
-        for (let i = 0; i < directionAxes.length; i++) {
-            const axis = directionAxes[i];
+        for (const axis of directionAxes) {
             const axisKeys = axis.keys;
 
             if (!axisKeys.length) {
                 return axis;
-            } else if (directionKeys) {
-                for (let j = 0; j < directionKeys.length; j++) {
-                    if (axisKeys.indexOf(directionKeys[j]) >= 0) {
-                        return axis;
-                    }
+            }
+
+            if (!directionKeys) {
+                continue;
+            }
+            
+            for (const directionKey of directionKeys) {
+                if (axisKeys.indexOf(directionKey) >= 0) {
+                    return axis;
                 }
             }
         }
+    }
+
+    private resize(width: number, height: number) {
+        this.scene.resize(width, height);
     }
 
     processData(): void {
@@ -1055,12 +1058,6 @@ export abstract class Chart extends Observable {
                 if (enabled) {
                     this.tooltip.toggle(false);
                 }
-                this.legend.fireEvent<LegendClickEvent>({
-                    type: 'click',
-                    event,
-                    itemId,
-                    enabled: !enabled
-                });
                 return true;
             }
         }

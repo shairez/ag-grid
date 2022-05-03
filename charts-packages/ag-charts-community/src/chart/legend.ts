@@ -86,18 +86,6 @@ export class LegendItem extends Observable {
      * padding between legend items.
      */
     paddingY = 8;
-
-    constructor() {
-        super();
-
-        const changeListener = () => this.fireEvent({ type: 'change' });
-        this.marker.addEventListener('change', changeListener);
-        this.label.addEventListener('change', changeListener);
-
-        const layoutChangeListener = () => this.fireEvent({ type: 'layoutChange' });
-        this.marker.addEventListener('layoutChange', layoutChangeListener);
-        this.label.addEventListener('layoutChange', layoutChangeListener);
-    }
 }
 
 export class Legend extends Observable {
@@ -133,11 +121,6 @@ export class Legend extends Observable {
         this.addPropertyListener('enabled', this.onEnabledChange);
         this.addPropertyListener('position', this.onPositionChange);
         this.item.marker.addPropertyListener('shape', this.onMarkerShapeChange, this);
-
-        this.addEventListener('change', this.update);
-
-        this.item.addEventListener('change', () => this.fireEvent({ type: 'change' }));
-        this.item.addEventListener('layoutChange', () => this.fireEvent({ type: 'layoutChange' }));
     }
 
     private _size: [number, number] = [0, 0];

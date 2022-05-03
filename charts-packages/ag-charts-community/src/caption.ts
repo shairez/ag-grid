@@ -11,60 +11,42 @@ export class Caption extends Observable {
     padding = new Padding(10);
 
     set text(value: string) {
-        if (this.node.text !== value) {
-            this.node.text = value;
-            this.fireEvent({ type: 'change' });
-        }
+        this.node.text = value;
     }
     get text(): string {
         return this.node.text;
     }
 
     set fontStyle(value: FontStyle | undefined) {
-        if (this.node.fontStyle !== value) {
-            this.node.fontStyle = value;
-            this.fireEvent({ type: 'change' });
-        }
+        this.node.fontStyle = value;
     }
     get fontStyle(): FontStyle | undefined {
         return this.node.fontStyle;
     }
 
     set fontWeight(value: FontWeight | undefined) {
-        if (this.node.fontWeight !== value) {
-            this.node.fontWeight = value;
-            this.fireEvent({ type: 'change' });
-        }
+        this.node.fontWeight = value;
     }
     get fontWeight(): FontWeight | undefined {
         return this.node.fontWeight;
     }
 
     set fontSize(value: number) {
-        if (this.node.fontSize !== value) {
-            this.node.fontSize = value;
-            this.fireEvent({ type: 'change' });
-        }
+        this.node.fontSize = value;
     }
     get fontSize(): number {
         return this.node.fontSize;
     }
 
     set fontFamily(value: string) {
-        if (this.node.fontFamily !== value) {
-            this.node.fontFamily = value;
-            this.fireEvent({ type: 'change' });
-        }
+        this.node.fontFamily = value;
     }
     get fontFamily(): string {
         return this.node.fontFamily;
     }
 
     set color(value: string | undefined) {
-        if (this.node.fill !== value) {
-            this.node.fill = value;
-            this.fireEvent({ type: 'change' });
-        }
+        this.node.fill = value;
     }
     get color(): string | undefined {
         return this.node.fill;

@@ -426,8 +426,6 @@ export class BarSeries extends CartesianSeries {
 
         this.yDomain = this.fixNumericExtent([yMin, yMax], 'y', this.yAxis);
 
-        this.fireEvent({ type: 'dataProcessed' });
-
         return true;
     }
 

@@ -4,6 +4,7 @@ import { ChartAxisDirection } from "../chartAxis";
 import { BBox } from "../../scene/bbox";
 import { NavigatorMask } from "./navigatorMask";
 import { NavigatorHandle } from "./navigatorHandle";
+import { ChartUpdateType } from "../chart";
 
 interface Offset {
     offsetX: number;
@@ -164,6 +165,8 @@ export class Navigator {
                 rs.min = rs.max - span;
             }
         }
+
+        this.chart.update(ChartUpdateType.SERIES_UPDATE);
     }
 
     onDragStop() {
